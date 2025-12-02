@@ -3,6 +3,7 @@ menu(mode="multiple" type="file|dir|back" title="Utilities" image=\uE255)
 
 }
 
+modify(find="Notepad" menu="Utilities")
 modify(find="File Locksmith" menu="Utilities")
 modify(find="Mp3tag" menu="Utilities")
 modify(find="PowerRename" menu="Utilities")

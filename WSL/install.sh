@@ -130,6 +130,16 @@ else
     print_info "oh-my-posh already installed"
 fi
 
+# Configure oh-my-posh in zshrc
+# Available themes can be viewed with: oh-my-posh config show
+add_to_zshrc 'eval "$(oh-my-posh init zsh --config ~/.configs/nirbhaykwatra.omp.json)"' "oh-my-posh initialization"
+
+# Note about terminal font configuration:
+print_info "Note: For icons and symbols to display correctly, your terminal must use a Nerd Font"
+print_info "Configure your terminal to use '0xProto Nerd Font' in its settings"
+
+print_success "Oh-My-Posh configured in zshrc"
+
 # Install a Nerd Font for proper icon and symbol display
 # 0xProto is a monospace font designed for coding with excellent readability
 print_header "Installing 0xProto Nerd Font for Oh-My-Posh"
@@ -145,16 +155,6 @@ if [ ! -d "$HOME/.configs" ]; then
 else
     print_info "Configs repo already exists, skipping cloning"
 fi
-
-# Configure oh-my-posh in zshrc
-# Available themes can be viewed with: oh-my-posh config show
-add_to_zshrc 'eval "$(oh-my-posh init zsh --config ~/.configs/nirbhaykwatra.omp.json)"' "oh-my-posh initialization"
-
-# Note about terminal font configuration:
-print_info "Note: For icons and symbols to display correctly, your terminal must use a Nerd Font"
-print_info "Configure your terminal to use '0xProto Nerd Font' in its settings"
-
-print_success "Oh-My-Posh configured in zshrc"
 
 ################################################################################
 # Essential Build Tools and Utilities

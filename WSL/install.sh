@@ -125,17 +125,17 @@ print_success "zsh installed"
 sudo apt-get install -y curl
 print_success "curl installed"
 
-# # Install oh-my-zsh using the official installer in unattended mode
-# # This will create ~/.zshrc automatically
-# if [ ! -d "$ACTUAL_HOME/.oh-my-zsh" ]; then
-#     print_info "Installing Oh-My-Zsh..."
-#     # Use RUNZSH=no to prevent automatic shell switching during installation
-#     RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-#     chown -R "$ACTUAL_USER:$ACTUAL_USER" "$ACTUAL_HOME/.oh-my-zsh"
-#     print_success "Oh-My-Zsh installed"
-# else
-#     print_info "Oh-My-Zsh already installed"
-# fi
+# Install oh-my-zsh using the official installer in unattended mode
+# This will create ~/.zshrc automatically
+if [ ! -d "$ACTUAL_HOME/.oh-my-zsh" ]; then
+    print_info "Installing Oh-My-Zsh..."
+    # Use RUNZSH=no to prevent automatic shell switching during installation
+    RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    chown -R "$ACTUAL_USER:$ACTUAL_USER" "$ACTUAL_HOME/.oh-my-zsh"
+    print_success "Oh-My-Zsh installed"
+else
+    print_info "Oh-My-Zsh already installed"
+fi
 
 # Change default shell to zsh immediately
 print_info "Changing default shell to zsh..."
@@ -288,7 +288,7 @@ git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf 2>/dev/null || tr
 print_success "fzf installed"
 
 # zoxide: Smart directory navigation with 'z' command, remembers frequently visited directories
-apt-get install -y zoxide
+sudo apt-get install -y zoxide
 print_success "zoxide installed"
 
 # Add zoxide initialization to shell configs

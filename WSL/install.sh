@@ -58,25 +58,40 @@ print_info() {
     echo -e "${YELLOW}→ $1${NC}"
 }
 
-# Function to safely append to zshrc and bashrc without duplicates
+# Function to safely append to zshrc without duplicates
 # Compatible with both direct execution and sudo execution
-add_to_shell_configs() {
+add_to_zsh() {
     local config_line="$1"
     local section_name="$2"
     
-    # Add to zshrc
     if ! grep -Fxq "$config_line" "$ACTUAL_HOME/.zshrc" 2>/dev/null; then
         echo "" >> "$ACTUAL_HOME/.zshrc"
         echo "# $section_name" >> "$ACTUAL_HOME/.zshrc"
         echo "$config_line" >> "$ACTUAL_HOME/.zshrc"
     fi
+}
+
+# Function to safely append to bashrc without duplicates
+# Compatible with both direct execution and sudo execution
+add_to_bash() {
+    local config_line="$1"
+    local section_name="$2"
     
-    # Add to bashrc
     if ! grep -Fxq "$config_line" "$ACTUAL_HOME/.bashrc" 2>/dev/null; then
         echo "" >> "$ACTUAL_HOME/.bashrc"
         echo "# $section_name" >> "$ACTUAL_HOME/.bashrc"
         echo "$config_line" >> "$ACTUAL_HOME/.bashrc"
     fi
+}
+
+# Function to append to both zshrc and bashrc
+# Convenience wrapper that calls both add_to_zsh and add_to_bash
+add_to_shell_configs() {
+    local config_line="$1"
+    local section_name="$2"
+    
+    add_to_zsh "$config_line" "$section_name"
+    add_to_bash "$config_line" "$section_name"
 }
 ################################################################################
 # Setup $ACTUAL_HOME/.bin in PATH
@@ -90,7 +105,7 @@ fi
 
 # Add $ACTUAL_HOME/.bin to PATH if not already present
 if [[ ":$PATH:" != *":$ACTUAL_HOME/.bin:"* ]]; then
-    export PATH="$ACTUAL_HOME/.bin:$PATH"
+    export PATH="$PATH:$ACTUAL_HOME/.bin"
 fi
 
 ################################################################################
@@ -157,8 +172,6 @@ print_header "Installing Oh-My-Posh (Prompt Theme Engine)"
 mkdir -p "$ACTUAL_HOME/.bin"
 chown "$ACTUAL_USER:$ACTUAL_USER" "$ACTUAL_HOME/.bin"
 
-export PATH="$PATH:$ACTUAL_HOME/.bin"
-
 if ! command -v oh-my-posh &> /dev/null; then
     print_info "Installing oh-my-posh..."
     # Download and install oh-my-posh using the official installer
@@ -170,7 +183,8 @@ fi
 
 # Configure oh-my-posh in shell configs
 # Available themes can be viewed with: oh-my-posh config show
-add_to_shell_configs 'eval "$(oh-my-posh init zsh --config ~/.configs/nirbhaykwatra.omp.json)"' "oh-my-posh initialization"
+add_to_zsh 'eval "$(oh-my-posh init zsh --config ~/.configs/nirbhaykwatra.omp.json)"' "oh-my-posh initialization"
+add_to_bash 'eval "$(oh-my-posh init bash --config ~/.configs/nirbhaykwatra.omp.json)"' "oh-my-posh initialization"
 
 # Note about terminal font configuration:
 print_info "Note: For icons and symbols to display correctly, your terminal must use a Nerd Font"
@@ -294,7 +308,8 @@ sudo apt-get install -y zoxide
 print_success "zoxide installed"
 
 # Add zoxide initialization to shell configs
-add_to_shell_configs 'eval "$(zoxide init zsh)"' "zoxide initialization"
+add_to_zsh 'eval "$(zoxide init zsh)"' "zoxide initialization"
+add_to_bash 'eval "$(zoxide init bash)"' "zoxide initialization"
 
 # Configure exa aliases to replace ls commands
 # This replaces the standard ls behavior with exa throughout the shell
@@ -484,7 +499,7 @@ cd() {
     find_nvm_version || true
 }
 EOF
-    chown \"$ACTUAL_USER:$ACTUAL_USER\" \"$ACTUAL_HOME/.nvm/plugins/nvm-auto-use.sh\"
+    chown \"$ACTUAL_USER\" \"$ACTUAL_HOME/.nvm/plugins/nvm-auto-use.sh\"
     print_success "Auto-use script created"
 else
     print_info "Auto-use script already exists"
@@ -535,7 +550,7 @@ fi
 
 print_header "Setup Complete!"
 
-echo -e "${GREEN}All packages have been installed and configured for zsh!${NC}\n"
+echo -e "${GREEN}All packages have been installed and configured for both zsh and bash!${NC}\n"
 
 echo -e "${YELLOW}Summary of installed tools:${NC}"
 echo "  ✓ Shell Environment: zsh, oh-my-zsh, oh-my-posh"
@@ -552,45 +567,45 @@ echo "  ✓ Version Control: git, github-cli, gh-copilot, lazygit"
 echo "  ✓ Command-Line Tools:"
 echo "     - ripgrep (rg): Fast grep alternative"
 echo "     - fd: Modern find replacement"
-echo "     - exa: Enhanced ls with aliases (ls, ll, la, laa, tree)"
+echo "     - eza: Enhanced ls with aliases (ls, ll, la, laa, tree)"
 echo "     - bat: Syntax-highlighted cat"
 echo "     - jq: JSON processor"
-echo "     - tldr: Simplified man pages"
 echo "     - fzf: Fuzzy finder"
 echo "     - zoxide: Smart directory navigation (z command)"
-echo "  ✓ Environment Management: direnv"
 echo "  ✓ Prompt Engines: oh-my-posh (active), starship (installed, optional)"
 echo "  ⓘ GitKraken: Available (see notes below)"
 
 echo -e "\n${YELLOW}Configuration Details:${NC}"
-echo "  • All environment variables configured in ~/.zshrc"
+echo "  • All environment variables configured in both ~/.zshrc and ~/.bashrc"
 echo "  • pyenv fully initialized for Python version management"
 echo "  • nvm fully initialized for Node.js with auto-switching via .nvmrc"
 echo "  • asdf ready for additional language/tool version management"
 echo "  • Oh-My-Zsh ready with plugins and theme customization"
 echo "  • Oh-My-Posh active with powerline theme and 0xProto Nerd Font"
-echo "  • exa replaces ls completely with custom aliases"
+echo "  • eza replaces ls completely with custom aliases"
 echo "  • zoxide enables smart directory navigation with z command"
-echo "  • direnv enables per-directory environment configuration"
 echo "  • fzf integrated for fuzzy finding throughout shell"
 echo "  • gh-copilot available for AI-assisted command-line help"
+echo "  • All tools installed to user home directory (\$HOME)"
+echo "  • Script compatible with both direct execution and sudo invocation"
 
 echo -e "\n${YELLOW}Quick Command Reference:${NC}"
 echo "  z <directory>       - Jump to frequently used directories (zoxide)"
 echo "  lazygit             - Git UI in terminal"
 echo "  rg <pattern>        - Fast grep alternative"
 echo "  fd <pattern>        - Find files efficiently"
-echo "  ls/ll/la/tree       - exa-powered listing commands"
+echo "  ls/ll/la/tree       - eza-powered listing commands"
 echo "  cat <file>          - Syntax-highlighted output (bat alias)"
 echo "  fzf                 - Fuzzy finder for files/commands"
 echo "  jq                  - JSON processing"
-echo "  tldr <command>      - Quick command examples"
 echo "  gh copilot          - AI assistance for CLI"
 echo "  nvm use <version>   - Switch Node versions (auto via .nvmrc)"
 echo "  pyenv install <ver> - Install Python versions"
 
 echo -e "\n${YELLOW}Next Steps:${NC}"
-echo "  1. Start a new zsh session: exec zsh"
+echo "  1. Start a new shell session:"
+echo "     - For zsh: exec zsh"
+echo "     - For bash: exec bash"
 echo "  2. Verify core installations:"
 echo "     - node --version"
 echo "     - python3 --version"
@@ -605,17 +620,15 @@ echo "  5. Test enhanced commands:"
 echo "     - z (navigate with zoxide)"
 echo "     - lazygit (for git repositories)"
 echo "     - fzf (Ctrl+R in history, Ctrl+T for files)"
-echo "  6. Create .envrc for direnv in projects: echo 'export MY_VAR=value' > .envrc && direnv allow"
-echo "  7. Create .nvmrc in Node projects: echo 'lts/*' > .nvmrc"
-echo "  8. For GitKraken GUI: Install Windows version from https://www.gitkraken.com/"
+echo "  6. Create .nvmrc in Node projects: echo 'node' > .nvmrc"
+echo "  7. For GitKraken GUI: Install Windows version from https://www.gitkraken.com/"
 
 echo -e "\n${YELLOW}Customization Tips:${NC}"
 echo "  • Change oh-my-posh theme: edit init line in ~/.zshrc"
 echo "  • Switch to Starship: uncomment starship init in ~/.zshrc, comment oh-my-posh"
 echo "  • Add oh-my-zsh plugins: edit 'plugins=()' in ~/.zshrc"
 echo "  • Useful plugins: git, node, npm, nvm, python, pyenv, zoxide, fzf"
-echo "  • Configure direnv: create/edit ~/.direnvrc for shared functions"
-echo "  • Add asdf plugins: asdf plugin add <language>"
+echo "  • Customize shell configs: ~/.zshrc and ~/.bashrc have all configurations"
 
 echo -e "\n${YELLOW}Useful zsh and oh-my-zsh features:${NC}"
 echo "  • omz command help"
@@ -624,4 +637,4 @@ echo "  • omz plugin list - Browse available plugins"
 echo "  • omz reload - Reload your zsh configuration"
 echo "  • omz update - Update oh-my-zsh"
 
-echo -e "\n${GREEN}Happy coding with zsh, oh-my-posh, and enhanced CLI tools!${NC}\n"
+echo -e "\n${GREEN}Happy coding with your configured development environment!${NC}\n"

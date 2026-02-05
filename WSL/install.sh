@@ -83,14 +83,16 @@ print_success "curl installed"
 
 # Install oh-my-zsh using the official installer in unattended mode
 # This will create ~/.zshrc automatically
-if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    print_info "Installing Oh-My-Zsh..."
-    # Use RUNZSH=no to prevent automatic shell switching during installation
-    RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-    print_success "Oh-My-Zsh installed"
-else
-    print_info "Oh-My-Zsh already installed"
-fi
+# if [ ! -d "$HOME/.oh-my-zsh" ]; then
+#     print_info "Installing Oh-My-Zsh..."
+#     # Use RUNZSH=no to prevent automatic shell switching during installation
+#     RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+#     print_success "Oh-My-Zsh installed"
+# else
+#     print_info "Oh-My-Zsh already installed"
+# fi
+
+sudo echo "" >> ~/.zshrc
 
 # Change default shell to zsh immediately
 print_info "Changing default shell to zsh..."

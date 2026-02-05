@@ -99,8 +99,8 @@ fi
 
 print_header "Updating System Packages"
 # Update package manager cache and upgrade all packages
-apt-get update -y
-apt-get upgrade -y
+sudo apt-get update -y
+sudo apt-get upgrade -y
 print_success "System packages updated"
 
 ################################################################################
@@ -130,7 +130,7 @@ print_success "curl installed"
 if [ ! -d "$ACTUAL_HOME/.oh-my-zsh" ]; then
     print_info "Installing Oh-My-Zsh..."
     # Use RUNZSH=no to prevent automatic shell switching during installation
-    RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    sudo -u "$ACTUAL_USER" bash -c 'RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended'
     chown -R "$ACTUAL_USER:$ACTUAL_USER" "$ACTUAL_HOME/.oh-my-zsh"
     print_success "Oh-My-Zsh installed"
 else
@@ -139,7 +139,7 @@ fi
 
 # Change default shell to zsh immediately
 print_info "Changing default shell to zsh..."
-sudo chsh -s /usr/bin/zsh "$USER"
+sudo chsh -s $(which zsh) "$ACTUAL_USER"
 print_success "Default shell changed to zsh"
 
 

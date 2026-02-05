@@ -50,13 +50,27 @@ print_info() {
 }
 
 ################################################################################
+# Setup $HOME/.bin in PATH
+################################################################################
+
+# Create .bin directory if it doesn't exist
+if [ ! -d "$HOME/.bin" ]; then
+    mkdir -p "$HOME/.bin"
+fi
+
+# Add $HOME/.bin to PATH if not already present
+if [[ ":$PATH:" != *":$HOME/.bin:"* ]]; then
+    export PATH="$HOME/.bin:$PATH"
+fi
+
+################################################################################
 # System Update
 ################################################################################
 
 print_header "Updating System Packages"
 # Update package manager cache and upgrade all packages
-sudo apt-get update -y
-sudo apt-get upgrade -y
+apt-get update -y
+apt-get upgrade -y
 print_success "System packages updated"
 
 ################################################################################
@@ -64,7 +78,7 @@ print_success "System packages updated"
 ################################################################################
 
 # unzip: Utility for extracting .zip files (needed as dependency for oh-my-posh font extraction)
-sudo apt-get install -y unzip
+apt-get install -y unzip
 print_success "unzip installed"
 
 ################################################################################
@@ -74,11 +88,11 @@ print_success "unzip installed"
 print_header "Installing Zsh and Oh-My-Zsh (PRIORITY INSTALLATION)"
 
 # Install zsh: Modern shell with better defaults and plugin support
-sudo apt-get install -y zsh
+apt-get install -y zsh
 print_success "zsh installed"
 
 # Install curl (needed for oh-my-zsh installer, and also a required package)
-sudo apt-get install -y curl
+apt-get install -y curl
 print_success "curl installed"
 
 # Install oh-my-zsh using the official installer in unattended mode
@@ -94,23 +108,27 @@ fi
 
 # Change default shell to zsh immediately
 print_info "Changing default shell to zsh..."
-sudo chsh -s /usr/bin/zsh "$USER"
+chsh -s /usr/bin/zsh "$USER"
 print_success "Default shell changed to zsh"
 
-# Function to safely append to zshrc without duplicates
-add_to_zshrc() {
+# Function to safely append to zshrc and bashrc without duplicates
+add_to_shell_configs() {
     local config_line="$1"
     local section_name="$2"
     
-    # Guard clause: check if the exact config line already exists
-    if grep -Fxq "$config_line" ~/.zshrc 2>/dev/null; then
-        return 0  # Already exists, skip adding
+    # Add to zshrc
+    if ! grep -Fxq "$config_line" ~/.zshrc 2>/dev/null; then
+        echo "" >> ~/.zshrc
+        echo "# $section_name" >> ~/.zshrc
+        echo "$config_line" >> ~/.zshrc
     fi
     
-    # Add the new configuration
-    echo "" >> ~/.zshrc
-    echo "# $section_name" >> ~/.zshrc
-    echo "$config_line" >> ~/.zshrc
+    # Add to bashrc
+    if ! grep -Fxq "$config_line" ~/.bashrc 2>/dev/null; then
+        echo "" >> ~/.bashrc
+        echo "# $section_name" >> ~/.bashrc
+        echo "$config_line" >> ~/.bashrc
+    fi
 }
 
 print_success "Zsh environment ready for configuration"
@@ -124,20 +142,20 @@ print_header "Installing Oh-My-Posh (Prompt Theme Engine)"
 # oh-my-posh: A theme engine for any shell that can display git status,
 # execution time, exit codes, and more in a beautiful and customizable way
 # It works alongside oh-my-zsh for an enhanced shell experience
-mkdir "/home/$SUDO_USER/.bin"
+mkdir -p "$HOME/.bin"
 
 if ! command -v oh-my-posh &> /dev/null; then
     print_info "Installing oh-my-posh..."
     # Download and install oh-my-posh using the official installer
-    curl -s https://ohmyposh.dev/install.sh | bash -s -- -d "/home/$SUDO_USER/.bin"
+    curl -s https://ohmyposh.dev/install.sh | bash -s -- -d "$HOME/.bin"
     print_success "oh-my-posh installed successfully"
 else
     print_info "oh-my-posh already installed"
 fi
 
-# Configure oh-my-posh in zshrc
+# Configure oh-my-posh in shell configs
 # Available themes can be viewed with: oh-my-posh config show
-add_to_zshrc 'eval "$(oh-my-posh init zsh --config ~/.configs/nirbhaykwatra.omp.json)"' "oh-my-posh initialization"
+add_to_shell_configs 'eval "$(oh-my-posh init zsh --config ~/.configs/nirbhaykwatra.omp.json)"' "oh-my-posh initialization"
 
 # Note about terminal font configuration:
 print_info "Note: For icons and symbols to display correctly, your terminal must use a Nerd Font"
@@ -168,19 +186,19 @@ fi
 print_header "Installing Build Tools and Essential Utilities"
 
 # build-essential: Compiler and development libraries needed for compiling software
-sudo apt-get install -y build-essential
+apt-get install -y build-essential
 print_success "build-essential installed"
 
 # wget: Non-interactive network downloader
-sudo apt-get install -y wget
+apt-get install -y wget
 print_success "wget installed"
 
 # htop: Interactive process viewer (better alternative to 'top')
-sudo apt-get install -y htop
+apt-get install -y htop
 print_success "htop installed"
 
 # git: Version control system (usually pre-installed, but ensure it's available)
-sudo apt-get install -y git
+apt-get install -y git
 print_success "git installed"
 
 ################################################################################
@@ -190,16 +208,16 @@ print_success "git installed"
 print_header "Installing Text Editors and Development Tools"
 
 # neovim: Modern vim-based text editor with better defaults
-sudo apt-get install -y neovim
+apt-get install -y neovim
 print_success "neovim installed"
 
 # tmux: Terminal multiplexer for managing multiple terminal windows and panes
 # Allows creating, managing, and navigating between multiple sessions and windows
-sudo apt-get install -y tmux
+apt-get install -y tmux
 print_success "tmux installed"
 
 # github-cli: Official GitHub command-line tool
-sudo apt-get install -y gh
+apt-get install -y gh
 print_success "github-cli installed"
 
 ################################################################################
@@ -209,11 +227,11 @@ print_success "github-cli installed"
 print_header "Installing Archive and Compression Utilities"
 
 # zip: Compression utility for creating .zip files
-sudo apt-get install -y zip
+apt-get install -y zip
 print_success "zip installed"
 
 # p7zip: 7-Zip compression utility (package name is p7zip, not 7zip)
-sudo apt-get install -y p7zip-full
+apt-get install -y p7zip-full
 print_success "7zip (p7zip) installed"
 
 ################################################################################
@@ -224,33 +242,33 @@ print_header "Installing Enhanced Command-Line Tools"
 
 # lazygit: Terminal UI for git with an intuitive interface for managing repositories
 # Provides an easy way to stage, commit, and manage branches without memorizing git commands
-sudo apt-get install -y lazygit
+apt-get install -y lazygit
 print_success "lazygit installed"
 
 # ripgrep (rg): Fast alternative to grep, respects .gitignore by default
-sudo apt-get install -y ripgrep
+apt-get install -y ripgrep
 print_success "ripgrep (rg) installed"
 
 # fd: User-friendly alternative to find command with sensible defaults
-sudo apt-get install -y fd-find
+apt-get install -y fd-find
 # Create symlink so 'fd' command works (package installs as 'fdfind')
-sudo ln -sf $(which fdfind) /usr/local/bin/fd 2>/dev/null || true
+ln -sf $(which fdfind) /usr/local/bin/fd 2>/dev/null || true
 print_success "fd installed"
 
 # exa: Modern replacement for ls with better colors and git integration
-sudo apt-get install -y exa
+apt-get install -y exa
 print_success "exa installed"
 
 # bat: Better cat command with syntax highlighting and git integration
-sudo apt-get install -y bat
+apt-get install -y bat
 print_success "bat installed"
 
 # jq: JSON processor for parsing and manipulating JSON on the command line
-sudo apt-get install -y jq
+apt-get install -y jq
 print_success "jq installed"
 
 # tldr: Simplified man pages with practical examples
-sudo apt-get install -y tldr
+apt-get install -y tldr
 print_success "tldr installed"
 
 # fzf: Fuzzy finder for the terminal, useful for searching history and files
@@ -260,19 +278,19 @@ git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf 2>/dev/null || tr
 print_success "fzf installed"
 
 # zoxide: Smart directory navigation with 'z' command, remembers frequently visited directories
-sudo apt-get install -y zoxide
+apt-get install -y zoxide
 print_success "zoxide installed"
 
-# Add zoxide initialization to zshrc
-add_to_zshrc 'eval "$(zoxide init zsh)"' "zoxide initialization"
+# Add zoxide initialization to shell configs
+add_to_shell_configs 'eval "$(zoxide init zsh)"' "zoxide initialization"
 
 # Configure exa aliases to replace ls commands
 # This replaces the standard ls behavior with exa throughout the shell
-add_to_zshrc 'alias ls="exa --group-directories-first"' "exa ls alias"
-add_to_zshrc 'alias ll="exa -lh --group-directories-first"' "exa ll alias"
-add_to_zshrc 'alias la="exa -la --group-directories-first"' "exa la alias"
-add_to_zshrc 'alias laa="exa -lah --group-directories-first"' "exa laa alias"
-add_to_zshrc 'alias tree="exa --tree --group-directories-first"' "exa tree alias"
+add_to_shell_configs 'alias ls="exa --group-directories-first"' "exa ls alias"
+add_to_shell_configs 'alias ll="exa -lh --group-directories-first"' "exa ll alias"
+add_to_shell_configs 'alias la="exa -la --group-directories-first"' "exa la alias"
+add_to_shell_configs 'alias laa="exa -lah --group-directories-first"' "exa laa alias"
+add_to_shell_configs 'alias tree="exa --tree --group-directories-first"' "exa tree alias"
 
 print_success "exa aliases configured in zshrc"
 
@@ -308,10 +326,10 @@ else
     print_info "asdf already installed"
 fi
 
-# Add asdf initialization to zshrc
-add_to_zshrc 'export ASDF_CONFIG_FILE="$HOME/.asdfrc"' "asdf configuration"
-add_to_zshrc '. "$HOME/.asdf/asdf.sh"' "asdf initialization"
-add_to_zshrc 'fpath=(${ASDF_DIR}/completions $fpath)' "asdf completions"
+# Add asdf initialization to shell configs
+add_to_shell_configs 'export ASDF_CONFIG_FILE="$HOME/.asdfrc"' "asdf configuration"
+add_to_shell_configs '. "$HOME/.asdf/asdf.sh"' "asdf initialization"
+add_to_shell_configs 'fpath=(${ASDF_DIR}/completions $fpath)' "asdf completions"
 
 print_success "asdf configured in zshrc"
 
@@ -361,7 +379,7 @@ print_info "And comment out the oh-my-posh initialization line"
 print_header "Setting Up Python Version Management (pyenv)"
 
 # Install dependencies required by pyenv for building Python from source
-sudo apt-get install -y \
+apt-get install -y \
     libssl-dev \
     libreadline-dev \
     libsqlite3-dev \
@@ -382,12 +400,12 @@ else
     print_info "pyenv already installed, skipping installation"
 fi
 
-# Add pyenv configuration to zshrc
-# This initialization must be in zshrc so it runs when zsh starts
+# Add pyenv configuration to shell configs
+# This initialization must be in the shell config so it runs when the shell starts
 # The installer typically adds this, but we ensure it's present
-add_to_zshrc 'export PYENV_ROOT="$HOME/.pyenv"' "pyenv root directory"
-add_to_zshrc 'export PATH="$PYENV_ROOT/bin:$PATH"' "pyenv initialization"
-add_to_zshrc 'eval "$(pyenv init -)"' "pyenv init"
+add_to_shell_configs 'export PYENV_ROOT="$HOME/.pyenv"' "pyenv root directory"
+add_to_shell_configs 'export PATH="$PYENV_ROOT/bin:$PATH"' "pyenv initialization"
+add_to_shell_configs 'eval "$(pyenv init -)"' "pyenv init"
 print_success "pyenv configured in zshrc"
 
 ################################################################################
@@ -405,10 +423,10 @@ else
     print_info "nvm already installed"
 fi
 
-# Configure nvm in zshrc for automatic initialization
-add_to_zshrc 'export NVM_DIR="$HOME/.nvm"' "nvm initialization"
-add_to_zshrc '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' "nvm script loading"
-add_to_zshrc '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' "nvm bash completion"
+# Configure nvm in shell configs for automatic initialization
+add_to_shell_configs 'export NVM_DIR="$HOME/.nvm"' "nvm initialization"
+add_to_shell_configs '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' "nvm script loading"
+add_to_shell_configs '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' "nvm bash completion"
 
 # Source nvm immediately for this session (needed to install Node.js in this script)
 export NVM_DIR="$HOME/.nvm"
@@ -455,8 +473,8 @@ else
     print_info "Auto-use script already exists"
 fi
 
-# Add auto-use script to zshrc
-add_to_zshrc '[ -s "$HOME/.nvm/plugins/nvm-auto-use.sh" ] && \. "$HOME/.nvm/plugins/nvm-auto-use.sh"' "nvm auto-use plugin"
+# Add auto-use script to shell configs
+add_to_shell_configs '[ -s "$HOME/.nvm/plugins/nvm-auto-use.sh" ] && \. "$HOME/.nvm/plugins/nvm-auto-use.sh"' "nvm auto-use plugin"
 print_success "Auto-use plugin configured in zshrc"
 
 ################################################################################
@@ -466,13 +484,13 @@ print_success "Auto-use plugin configured in zshrc"
 print_header "Installing Jekyll"
 
 # Install Ruby (Jekyll is a Ruby application) and required development files
-sudo apt-get install -y ruby ruby-dev
+apt-get install -y ruby ruby-dev
 print_success "Ruby installed"
 
 # Install bundler and Jekyll gems
 # bundler: Dependency manager for Ruby projects
 # jekyll: Static site generator written in Ruby
-sudo gem install bundler jekyll
+gem install bundler jekyll
 print_success "Jekyll installed"
 
 ################################################################################
@@ -487,7 +505,7 @@ print_header "Installing GitKraken"
 
 if command -v snap &> /dev/null; then
     print_info "Installing GitKraken via snap..."
-    sudo snap install gitkraken --classic
+    snap install gitkraken --classic
     print_success "GitKraken installed via snap"
 else
     print_error "Snap not available. For GitKraken GUI, install the Windows version from: https://www.gitkraken.com/"

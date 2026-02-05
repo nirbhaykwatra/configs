@@ -92,7 +92,15 @@ print_success "curl installed"
 #     print_info "Oh-My-Zsh already installed"
 # fi
 
-sudo echo "" >> ~/.zshrc
+# Ensure .zshrc exists (create if not present)
+# This is needed since oh-my-zsh installation is commented out above
+if [ ! -f "$HOME/.zshrc" ]; then
+    print_info "Creating ~/.zshrc..."
+    touch ~/.zshrc
+    print_success ".zshrc created"
+else
+    print_info ".zshrc already exists"
+fi
 
 # Change default shell to zsh immediately
 print_info "Changing default shell to zsh..."
@@ -104,11 +112,15 @@ add_to_zshrc() {
     local config_line="$1"
     local section_name="$2"
     
-    if ! grep -q "$section_name" ~/.zshrc 2>/dev/null; then
-        echo "" >> ~/.zshrc
-        echo "# $section_name" >> ~/.zshrc
-        echo "$config_line" >> ~/.zshrc
+    # Guard clause: check if the exact config line already exists
+    if grep -Fxq "$config_line" ~/.zshrc 2>/dev/null; then
+        return 0  # Already exists, skip adding
     fi
+    
+    # Add the new configuration
+    echo "" >> ~/.zshrc
+    echo "# $section_name" >> ~/.zshrc
+    echo "$config_line" >> ~/.zshrc
 }
 
 print_success "Zsh environment ready for configuration"

@@ -78,7 +78,7 @@ print_success "System packages updated"
 ################################################################################
 
 # unzip: Utility for extracting .zip files (needed as dependency for oh-my-posh font extraction)
-apt-get install -y unzip
+sudo apt-get install -y unzip
 print_success "unzip installed"
 
 ################################################################################
@@ -88,11 +88,11 @@ print_success "unzip installed"
 print_header "Installing Zsh and Oh-My-Zsh (PRIORITY INSTALLATION)"
 
 # Install zsh: Modern shell with better defaults and plugin support
-apt-get install -y zsh
+sudo apt-get install -y zsh
 print_success "zsh installed"
 
 # Install curl (needed for oh-my-zsh installer, and also a required package)
-apt-get install -y curl
+sudo apt-get install -y curl
 print_success "curl installed"
 
 # Install oh-my-zsh using the official installer in unattended mode
@@ -108,7 +108,7 @@ fi
 
 # Change default shell to zsh immediately
 print_info "Changing default shell to zsh..."
-chsh -s /usr/bin/zsh "$USER"
+sudo chsh -s /usr/bin/zsh "$USER"
 print_success "Default shell changed to zsh"
 
 # Function to safely append to zshrc and bashrc without duplicates
@@ -186,19 +186,19 @@ fi
 print_header "Installing Build Tools and Essential Utilities"
 
 # build-essential: Compiler and development libraries needed for compiling software
-apt-get install -y build-essential
+sudo apt-get install -y build-essential
 print_success "build-essential installed"
 
 # wget: Non-interactive network downloader
-apt-get install -y wget
+sudo apt-get install -y wget
 print_success "wget installed"
 
 # htop: Interactive process viewer (better alternative to 'top')
-apt-get install -y htop
+sudo apt-get install -y htop
 print_success "htop installed"
 
 # git: Version control system (usually pre-installed, but ensure it's available)
-apt-get install -y git
+sudo apt-get install -y git
 print_success "git installed"
 
 ################################################################################
@@ -208,16 +208,16 @@ print_success "git installed"
 print_header "Installing Text Editors and Development Tools"
 
 # neovim: Modern vim-based text editor with better defaults
-apt-get install -y neovim
+sudo apt-get install -y neovim
 print_success "neovim installed"
 
 # tmux: Terminal multiplexer for managing multiple terminal windows and panes
 # Allows creating, managing, and navigating between multiple sessions and windows
-apt-get install -y tmux
+sudo apt-get install -y tmux
 print_success "tmux installed"
 
 # github-cli: Official GitHub command-line tool
-apt-get install -y gh
+sudo apt-get install -y gh
 print_success "github-cli installed"
 
 ################################################################################
@@ -227,11 +227,11 @@ print_success "github-cli installed"
 print_header "Installing Archive and Compression Utilities"
 
 # zip: Compression utility for creating .zip files
-apt-get install -y zip
+sudo apt-get install -y zip
 print_success "zip installed"
 
 # p7zip: 7-Zip compression utility (package name is p7zip, not 7zip)
-apt-get install -y p7zip-full
+sudo apt-get install -y p7zip-full
 print_success "7zip (p7zip) installed"
 
 ################################################################################
@@ -242,33 +242,33 @@ print_header "Installing Enhanced Command-Line Tools"
 
 # lazygit: Terminal UI for git with an intuitive interface for managing repositories
 # Provides an easy way to stage, commit, and manage branches without memorizing git commands
-apt-get install -y lazygit
+sudo apt-get install -y lazygit
 print_success "lazygit installed"
 
 # ripgrep (rg): Fast alternative to grep, respects .gitignore by default
-apt-get install -y ripgrep
+sudo apt-get install -y ripgrep
 print_success "ripgrep (rg) installed"
 
 # fd: User-friendly alternative to find command with sensible defaults
-apt-get install -y fd-find
+sudo apt-get install -y fd-find
 # Create symlink so 'fd' command works (package installs as 'fdfind')
-ln -sf $(which fdfind) /usr/local/bin/fd 2>/dev/null || true
+sudo ln -sf $(which fdfind) /usr/local/bin/fd 2>/dev/null || true
 print_success "fd installed"
 
 # exa: Modern replacement for ls with better colors and git integration
-apt-get install -y exa
+sudo apt-get install -y exa
 print_success "exa installed"
 
 # bat: Better cat command with syntax highlighting and git integration
-apt-get install -y bat
+sudo apt-get install -y bat
 print_success "bat installed"
 
 # jq: JSON processor for parsing and manipulating JSON on the command line
-apt-get install -y jq
+sudo apt-get install -y jq
 print_success "jq installed"
 
 # tldr: Simplified man pages with practical examples
-apt-get install -y tldr
+sudo apt-get install -y tldr
 print_success "tldr installed"
 
 # fzf: Fuzzy finder for the terminal, useful for searching history and files
@@ -379,7 +379,7 @@ print_info "And comment out the oh-my-posh initialization line"
 print_header "Setting Up Python Version Management (pyenv)"
 
 # Install dependencies required by pyenv for building Python from source
-apt-get install -y \
+sudo apt-get install -y \
     libssl-dev \
     libreadline-dev \
     libsqlite3-dev \
@@ -484,13 +484,13 @@ print_success "Auto-use plugin configured in zshrc"
 print_header "Installing Jekyll"
 
 # Install Ruby (Jekyll is a Ruby application) and required development files
-apt-get install -y ruby ruby-dev
+sudo apt-get install -y ruby ruby-dev
 print_success "Ruby installed"
 
 # Install bundler and Jekyll gems
 # bundler: Dependency manager for Ruby projects
 # jekyll: Static site generator written in Ruby
-gem install bundler jekyll
+sudo gem install bundler jekyll
 print_success "Jekyll installed"
 
 ################################################################################
@@ -505,7 +505,7 @@ print_header "Installing GitKraken"
 
 if command -v snap &> /dev/null; then
     print_info "Installing GitKraken via snap..."
-    snap install gitkraken --classic
+    sudo snap install gitkraken --classic
     print_success "GitKraken installed via snap"
 else
     print_error "Snap not available. For GitKraken GUI, install the Windows version from: https://www.gitkraken.com/"

@@ -60,6 +60,14 @@ sudo apt-get upgrade -y
 print_success "System packages updated"
 
 ################################################################################
+# Pre-requisite: unzip
+################################################################################
+
+# unzip: Utility for extracting .zip files (needed as dependency for oh-my-posh font extraction)
+sudo apt-get install -y unzip
+print_success "unzip installed"
+
+################################################################################
 # Zsh and Oh-My-Zsh - INSTALLED FIRST
 ################################################################################
 
@@ -184,10 +192,6 @@ print_success "htop installed"
 # git: Version control system (usually pre-installed, but ensure it's available)
 sudo apt-get install -y git
 print_success "git installed"
-
-# unzip: Utility for extracting .zip files (needed as dependency for oh-my-posh font extraction)
-sudo apt-get install -y unzip
-print_success "unzip installed"
 
 ################################################################################
 # Text Editors and Development Tools

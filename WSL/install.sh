@@ -16,6 +16,15 @@
 
 set -e  # Exit immediately if any command exits with a non-zero status
 
+# Determine the actual user (handles both sudo and non-sudo execution)
+if [ -n "$SUDO_USER" ]; then
+    ACTUAL_USER="$SUDO_USER"
+    ACTUAL_HOME=$(eval echo ~"$SUDO_USER")
+else
+    ACTUAL_USER="$USER"
+    ACTUAL_HOME="$HOME"
+fi
+
 # Color codes for output messages
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -50,36 +59,38 @@ print_info() {
 }
 
 # Function to safely append to zshrc and bashrc without duplicates
+# Compatible with both direct execution and sudo execution
 add_to_shell_configs() {
     local config_line="$1"
     local section_name="$2"
     
     # Add to zshrc
-    if ! grep -Fxq "$config_line" ~/.zshrc 2>/dev/null; then
-        echo "" >> ~/.zshrc
-        echo "# $section_name" >> ~/.zshrc
-        echo "$config_line" >> ~/.zshrc
+    if ! grep -Fxq "$config_line" "$ACTUAL_HOME/.zshrc" 2>/dev/null; then
+        echo "" >> "$ACTUAL_HOME/.zshrc"
+        echo "# $section_name" >> "$ACTUAL_HOME/.zshrc"
+        echo "$config_line" >> "$ACTUAL_HOME/.zshrc"
     fi
     
     # Add to bashrc
-    if ! grep -Fxq "$config_line" ~/.bashrc 2>/dev/null; then
-        echo "" >> ~/.bashrc
-        echo "# $section_name" >> ~/.bashrc
-        echo "$config_line" >> ~/.bashrc
+    if ! grep -Fxq "$config_line" "$ACTUAL_HOME/.bashrc" 2>/dev/null; then
+        echo "" >> "$ACTUAL_HOME/.bashrc"
+        echo "# $section_name" >> "$ACTUAL_HOME/.bashrc"
+        echo "$config_line" >> "$ACTUAL_HOME/.bashrc"
     fi
 }
 ################################################################################
-# Setup $HOME/.bin in PATH
+# Setup $ACTUAL_HOME/.bin in PATH
 ################################################################################
 
 # Create .bin directory if it doesn't exist
-if [ ! -d "$HOME/.bin" ]; then
-    mkdir -p "$HOME/.bin"
+if [ ! -d "$ACTUAL_HOME/.bin" ]; then
+    mkdir -p "$ACTUAL_HOME/.bin"
+    chown "$ACTUAL_USER:$ACTUAL_USER" "$ACTUAL_HOME/.bin"
 fi
 
-# Add $HOME/.bin to PATH if not already present
-if [[ ":$PATH:" != *":$HOME/.bin:"* ]]; then
-    export PATH="$HOME/.bin:$PATH"
+# Add $ACTUAL_HOME/.bin to PATH if not already present
+if [[ ":$PATH:" != *":$ACTUAL_HOME/.bin:"* ]]; then
+    export PATH="$ACTUAL_HOME/.bin:$PATH"
 fi
 
 ################################################################################
@@ -116,10 +127,11 @@ print_success "curl installed"
 
 # Install oh-my-zsh using the official installer in unattended mode
 # This will create ~/.zshrc automatically
-if [ ! -d "$HOME/.oh-my-zsh" ]; then
+if [ ! -d "$ACTUAL_HOME/.oh-my-zsh" ]; then
     print_info "Installing Oh-My-Zsh..."
     # Use RUNZSH=no to prevent automatic shell switching during installation
     RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    chown -R "$ACTUAL_USER:$ACTUAL_USER" "$ACTUAL_HOME/.oh-my-zsh"
     print_success "Oh-My-Zsh installed"
 else
     print_info "Oh-My-Zsh already installed"
@@ -142,12 +154,13 @@ print_header "Installing Oh-My-Posh (Prompt Theme Engine)"
 # oh-my-posh: A theme engine for any shell that can display git status,
 # execution time, exit codes, and more in a beautiful and customizable way
 # It works alongside oh-my-zsh for an enhanced shell experience
-mkdir -p "$HOME/.bin"
+mkdir -p "$ACTUAL_HOME/.bin"
+chown "$ACTUAL_USER:$ACTUAL_USER" "$ACTUAL_HOME/.bin"
 
 if ! command -v oh-my-posh &> /dev/null; then
     print_info "Installing oh-my-posh..."
     # Download and install oh-my-posh using the official installer
-    curl -s https://ohmyposh.dev/install.sh | bash -s -- -d "$HOME/.bin"
+    curl -s https://ohmyposh.dev/install.sh | bash -s -- -d "$ACTUAL_HOME/.bin"
     print_success "oh-my-posh installed successfully"
 else
     print_info "oh-my-posh already installed"
@@ -171,9 +184,10 @@ print_success "0xProto Nerd Font installed"
 
 # Download custom oh-my-posh theme configuration
 print_info "Downloading oh-my-posh theme configuration..."
-if [ ! -d "$HOME/.configs" ]; then
+if [ ! -d "$ACTUAL_HOME/.configs" ]; then
     print_info "Cloning configs repo..."
-    git clone https://github.com/nirbhaykwatra/configs.git "$HOME/.configs"
+    git clone https://github.com/nirbhaykwatra/configs.git "$ACTUAL_HOME/.configs"
+    chown -R "$ACTUAL_USER:$ACTUAL_USER" "$ACTUAL_HOME/.configs"
     print_success "Configs repo cloned successfully"
 else
     print_info "Configs repo already exists, skipping cloning"
@@ -314,17 +328,18 @@ print_header "Installing ASDF Version Manager"
 
 # asdf: Extendable version manager that can manage multiple languages and tools
 # Supports plugins for different languages, providing a unified interface for version management
-if [ ! -d "$HOME/.asdf" ]; then
+if [ ! -d "$ACTUAL_HOME/.asdf" ]; then
     print_info "Installing asdf..."
-    git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1 2>/dev/null || true
+    git clone https://github.com/asdf-vm/asdf.git "$ACTUAL_HOME/.asdf" --branch v0.13.1 2>/dev/null || true
+    chown -R "$ACTUAL_USER:$ACTUAL_USER" "$ACTUAL_HOME/.asdf"
     print_success "asdf installed"
 else
     print_info "asdf already installed"
 fi
 
 # Add asdf initialization to shell configs
-add_to_shell_configs 'export ASDF_CONFIG_FILE="$HOME/.asdfrc"' "asdf configuration"
-add_to_shell_configs '. "$HOME/.asdf/asdf.sh"' "asdf initialization"
+add_to_shell_configs 'export ASDF_CONFIG_FILE="$ACTUAL_HOME/.asdfrc"' "asdf configuration"
+add_to_shell_configs '. "$ACTUAL_HOME/.asdf/asdf.sh"' "asdf initialization"
 add_to_shell_configs 'fpath=(${ASDF_DIR}/completions $fpath)' "asdf completions"
 
 print_success "asdf configured in zshrc"
@@ -388,9 +403,10 @@ print_success "pyenv dependencies installed"
 
 # Install pyenv using the official installer script from GitHub
 # This method is the recommended way and handles all setup automatically
-if [ ! -d "$HOME/.pyenv" ]; then
+if [ ! -d "$ACTUAL_HOME/.pyenv" ]; then
     print_info "Installing pyenv using official installer..."
     curl https://pyenv.run | bash
+    chown -R "$ACTUAL_USER:$ACTUAL_USER" "$ACTUAL_HOME/.pyenv"
     print_success "pyenv installed successfully"
 else
     print_info "pyenv already installed, skipping installation"
@@ -399,8 +415,8 @@ fi
 # Add pyenv configuration to shell configs
 # This initialization must be in the shell config so it runs when the shell starts
 # The installer typically adds this, but we ensure it's present
-add_to_shell_configs 'export PYENV_ROOT="$HOME/.pyenv"' "pyenv root directory"
-add_to_shell_configs 'export PATH="$PYENV_ROOT/bin:$PATH"' "pyenv initialization"
+add_to_shell_configs 'export PYENV_ROOT="$ACTUAL_HOME/.pyenv"' "pyenv root directory"
+add_to_shell_configs 'export PATH="$ACTUAL_HOME/.pyenv/bin:$PATH"' "pyenv initialization"
 add_to_shell_configs 'eval "$(pyenv init -)"' "pyenv init"
 print_success "pyenv configured in zshrc"
 
@@ -411,21 +427,22 @@ print_success "pyenv configured in zshrc"
 print_header "Setting Up Node Version Manager (nvm) with Auto-switching"
 
 # Install nvm (Node Version Manager) via the official installer
-if [ ! -d "$HOME/.nvm" ]; then
+if [ ! -d "$ACTUAL_HOME/.nvm" ]; then
     print_info "Installing nvm..."
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+    chown -R "$ACTUAL_USER:$ACTUAL_USER" "$ACTUAL_HOME/.nvm"
     print_success "nvm installed"
 else
     print_info "nvm already installed"
 fi
 
 # Configure nvm in shell configs for automatic initialization
-add_to_shell_configs 'export NVM_DIR="$HOME/.nvm"' "nvm initialization"
-add_to_shell_configs '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' "nvm script loading"
-add_to_shell_configs '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' "nvm bash completion"
+add_to_shell_configs 'export NVM_DIR="$ACTUAL_HOME/.nvm"' "nvm initialization"
+add_to_shell_configs '[ -s "$ACTUAL_HOME/.nvm/nvm.sh" ] && \. "$ACTUAL_HOME/.nvm/nvm.sh"' "nvm script loading"
+add_to_shell_configs '[ -s "$ACTUAL_HOME/.nvm/bash_completion" ] && \. "$ACTUAL_HOME/.nvm/bash_completion"' "nvm bash completion"
 
 # Source nvm immediately for this session (needed to install Node.js in this script)
-export NVM_DIR="$HOME/.nvm"
+export NVM_DIR="$ACTUAL_HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
 # Install the latest version of Node.js
@@ -436,13 +453,14 @@ print_success "Latest Node.js installed and activated"
 
 # Set up automatic Node version switching based on .nvmrc files
 print_info "Setting up automatic Node version switching..."
-if [ ! -d "$HOME/.nvm/plugins" ]; then
-    mkdir -p ~/.nvm/plugins
+if [ ! -d "$ACTUAL_HOME/.nvm/plugins" ]; then
+    mkdir -p "$ACTUAL_HOME/.nvm/plugins"
+    chown -R "$ACTUAL_USER:$ACTUAL_USER" "$ACTUAL_HOME/.nvm/plugins"
 fi
 
-if [ ! -f "$HOME/.nvm/plugins/nvm-auto-use.sh" ]; then
+if [ ! -f "$ACTUAL_HOME/.nvm/plugins/nvm-auto-use.sh" ]; then
     # Create a simple auto-use script that switches Node versions based on .nvmrc
-    cat > ~/.nvm/plugins/nvm-auto-use.sh << 'EOF'
+    cat > "$ACTUAL_HOME/.nvm/plugins/nvm-auto-use.sh" << 'EOF'
 # Auto-use Node.js version from .nvmrc file when entering a directory
 find_nvm_version() {
     local dir="$PWD"
@@ -464,13 +482,14 @@ cd() {
     find_nvm_version || true
 }
 EOF
+    chown \"$ACTUAL_USER:$ACTUAL_USER\" \"$ACTUAL_HOME/.nvm/plugins/nvm-auto-use.sh\"
     print_success "Auto-use script created"
 else
     print_info "Auto-use script already exists"
 fi
 
 # Add auto-use script to shell configs
-add_to_shell_configs '[ -s "$HOME/.nvm/plugins/nvm-auto-use.sh" ] && \. "$HOME/.nvm/plugins/nvm-auto-use.sh"' "nvm auto-use plugin"
+add_to_shell_configs '[ -s \"$ACTUAL_HOME/.nvm/plugins/nvm-auto-use.sh\" ] && \\. \"$ACTUAL_HOME/.nvm/plugins/nvm-auto-use.sh\"' "nvm auto-use plugin"
 print_success "Auto-use plugin configured in zshrc"
 
 ################################################################################

@@ -124,12 +124,12 @@ print_header "Installing Oh-My-Posh (Prompt Theme Engine)"
 # oh-my-posh: A theme engine for any shell that can display git status,
 # execution time, exit codes, and more in a beautiful and customizable way
 # It works alongside oh-my-zsh for an enhanced shell experience
-mkdir -p "$HOME/.bin"
+mkdir "/home/$SUDO_USER/.bin"
 
 if ! command -v oh-my-posh &> /dev/null; then
     print_info "Installing oh-my-posh..."
     # Download and install oh-my-posh using the official installer
-    curl -s https://ohmyposh.dev/install.sh | bash -s -- -d ~/.bin
+    curl -s https://ohmyposh.dev/install.sh | bash -s -- -d "/home/$SUDO_USER/.bin"
     print_success "oh-my-posh installed successfully"
 else
     print_info "oh-my-posh already installed"

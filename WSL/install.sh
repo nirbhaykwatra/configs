@@ -501,7 +501,7 @@ cd() {
     find_nvm_version || true
 }
 EOF
-    chown "$ACTUAL_USER" \"$ACTUAL_HOME/.nvm/plugins/nvm-auto-use.sh\"
+    chown "$ACTUAL_USER" "$ACTUAL_HOME/.nvm/plugins/nvm-auto-use.sh"
     print_success "Auto-use script created"
 else
     print_info "Auto-use script already exists"

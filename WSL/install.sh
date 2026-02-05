@@ -183,6 +183,8 @@ fi
 
 # Configure oh-my-posh in shell configs
 # Available themes can be viewed with: oh-my-posh config show
+add_to_zsh 'export PATH=$PATH:/home/'"$ACTUAL_USER"'/.bin' "Add oh-my-posh to PATH"
+add_to_bash 'export PATH=$PATH:/home/'"$ACTUAL_USER"'/.bin' "Add oh-my-posh to PATH"
 add_to_zsh 'eval "$(oh-my-posh init zsh --config ~/.configs/nirbhaykwatra.omp.json)"' "oh-my-posh initialization"
 add_to_bash 'eval "$(oh-my-posh init bash --config ~/.configs/nirbhaykwatra.omp.json)"' "oh-my-posh initialization"
 
@@ -499,7 +501,7 @@ cd() {
     find_nvm_version || true
 }
 EOF
-    chown \"$ACTUAL_USER\" \"$ACTUAL_HOME/.nvm/plugins/nvm-auto-use.sh\"
+    chown "$ACTUAL_USER" \"$ACTUAL_HOME/.nvm/plugins/nvm-auto-use.sh\"
     print_success "Auto-use script created"
 else
     print_info "Auto-use script already exists"

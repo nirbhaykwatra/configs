@@ -132,24 +132,9 @@ fi
 
 # Install a Nerd Font for proper icon and symbol display
 # 0xProto is a monospace font designed for coding with excellent readability
-# The fonts are installed to ~/.local/share/fonts
-print_info "Setting up Nerd fonts for oh-my-posh..."
-if [ ! -d "$HOME/.local/share/fonts" ]; then
-    mkdir -p ~/.local/share/fonts
-fi
-
-# Download and install 0xProto Nerd Font
-if [ ! -f "$HOME/.local/share/fonts/0xProto Nerd Font Regular.ttf" ]; then
-    print_info "Downloading 0xProto Nerd Font..."
-    curl -L https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.0/0xProto.zip -o /tmp/0xProto.zip
-    unzip -q /tmp/0xProto.zip -d ~/.local/share/fonts
-    rm /tmp/0xProto.zip
-    # Rebuild font cache
-    fc-cache -fv ~/.local/share/fonts > /dev/null 2>&1 || true
-    print_success "Nerd fonts installed"
-else
-    print_info "Nerd fonts already installed"
-fi
+print_header "Installing 0xProto Nerd Font for Oh-My-Posh"
+oh-my-posh font install 0xProto
+print_success "0xProto Nerd Font installed"
 
 # Download custom oh-my-posh theme configuration
 print_info "Downloading oh-my-posh theme configuration..."

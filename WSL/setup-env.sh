@@ -185,6 +185,10 @@ print_success "htop installed"
 sudo apt-get install -y git
 print_success "git installed"
 
+# unzip: Utility for extracting .zip files (needed as dependency for oh-my-posh font extraction)
+sudo apt-get install -y unzip
+print_success "unzip installed"
+
 ################################################################################
 # Text Editors and Development Tools
 ################################################################################
@@ -213,10 +217,6 @@ print_header "Installing Archive and Compression Utilities"
 # zip: Compression utility for creating .zip files
 sudo apt-get install -y zip
 print_success "zip installed"
-
-# unzip: Utility for extracting .zip files
-sudo apt-get install -y unzip
-print_success "unzip installed"
 
 # p7zip: 7-Zip compression utility (package name is p7zip, not 7zip)
 sudo apt-get install -y p7zip-full

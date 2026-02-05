@@ -49,6 +49,25 @@ print_info() {
     echo -e "${YELLOW}→ $1${NC}"
 }
 
+# Function to safely append to zshrc and bashrc without duplicates
+add_to_shell_configs() {
+    local config_line="$1"
+    local section_name="$2"
+    
+    # Add to zshrc
+    if ! grep -Fxq "$config_line" ~/.zshrc 2>/dev/null; then
+        echo "" >> ~/.zshrc
+        echo "# $section_name" >> ~/.zshrc
+        echo "$config_line" >> ~/.zshrc
+    fi
+    
+    # Add to bashrc
+    if ! grep -Fxq "$config_line" ~/.bashrc 2>/dev/null; then
+        echo "" >> ~/.bashrc
+        echo "# $section_name" >> ~/.bashrc
+        echo "$config_line" >> ~/.bashrc
+    fi
+}
 ################################################################################
 # Setup $HOME/.bin in PATH
 ################################################################################
@@ -111,25 +130,6 @@ print_info "Changing default shell to zsh..."
 sudo chsh -s /usr/bin/zsh "$USER"
 print_success "Default shell changed to zsh"
 
-# Function to safely append to zshrc and bashrc without duplicates
-add_to_shell_configs() {
-    local config_line="$1"
-    local section_name="$2"
-    
-    # Add to zshrc
-    if ! grep -Fxq "$config_line" ~/.zshrc 2>/dev/null; then
-        echo "" >> ~/.zshrc
-        echo "# $section_name" >> ~/.zshrc
-        echo "$config_line" >> ~/.zshrc
-    fi
-    
-    # Add to bashrc
-    if ! grep -Fxq "$config_line" ~/.bashrc 2>/dev/null; then
-        echo "" >> ~/.bashrc
-        echo "# $section_name" >> ~/.bashrc
-        echo "$config_line" >> ~/.bashrc
-    fi
-}
 
 print_success "Zsh environment ready for configuration"
 
@@ -256,8 +256,8 @@ sudo ln -sf $(which fdfind) /usr/local/bin/fd 2>/dev/null || true
 print_success "fd installed"
 
 # exa: Modern replacement for ls with better colors and git integration
-sudo apt-get install -y exa
-print_success "exa installed"
+sudo apt-get install -y eza
+print_success "eza installed"
 
 # bat: Better cat command with syntax highlighting and git integration
 sudo apt-get install -y bat
@@ -266,10 +266,6 @@ print_success "bat installed"
 # jq: JSON processor for parsing and manipulating JSON on the command line
 sudo apt-get install -y jq
 print_success "jq installed"
-
-# tldr: Simplified man pages with practical examples
-sudo apt-get install -y tldr
-print_success "tldr installed"
 
 # fzf: Fuzzy finder for the terminal, useful for searching history and files
 # Integrates well with zsh for enhanced command-line experience

@@ -157,6 +157,8 @@ print_header "Installing Oh-My-Posh (Prompt Theme Engine)"
 mkdir -p "$ACTUAL_HOME/.bin"
 chown "$ACTUAL_USER:$ACTUAL_USER" "$ACTUAL_HOME/.bin"
 
+export PATH="$PATH:$ACTUAL_HOME/.bin"
+
 if ! command -v oh-my-posh &> /dev/null; then
     print_info "Installing oh-my-posh..."
     # Download and install oh-my-posh using the official installer
@@ -338,8 +340,8 @@ else
 fi
 
 # Add asdf initialization to shell configs
-add_to_shell_configs 'export ASDF_CONFIG_FILE="$ACTUAL_HOME/.asdfrc"' "asdf configuration"
-add_to_shell_configs '. "$ACTUAL_HOME/.asdf/asdf.sh"' "asdf initialization"
+add_to_shell_configs 'export ASDF_CONFIG_FILE="$HOME/.asdfrc"' "asdf configuration"
+add_to_shell_configs '. "$HOME/.asdf/asdf.sh"' "asdf initialization"
 add_to_shell_configs 'fpath=(${ASDF_DIR}/completions $fpath)' "asdf completions"
 
 print_success "asdf configured in zshrc"
@@ -415,8 +417,8 @@ fi
 # Add pyenv configuration to shell configs
 # This initialization must be in the shell config so it runs when the shell starts
 # The installer typically adds this, but we ensure it's present
-add_to_shell_configs 'export PYENV_ROOT="$ACTUAL_HOME/.pyenv"' "pyenv root directory"
-add_to_shell_configs 'export PATH="$ACTUAL_HOME/.pyenv/bin:$PATH"' "pyenv initialization"
+add_to_shell_configs 'export PYENV_ROOT="$HOME/.pyenv"' "pyenv root directory"
+add_to_shell_configs 'export PATH="$HOME/.pyenv/bin:$PATH"' "pyenv initialization"
 add_to_shell_configs 'eval "$(pyenv init -)"' "pyenv init"
 print_success "pyenv configured in zshrc"
 
@@ -437,9 +439,9 @@ else
 fi
 
 # Configure nvm in shell configs for automatic initialization
-add_to_shell_configs 'export NVM_DIR="$ACTUAL_HOME/.nvm"' "nvm initialization"
-add_to_shell_configs '[ -s "$ACTUAL_HOME/.nvm/nvm.sh" ] && \. "$ACTUAL_HOME/.nvm/nvm.sh"' "nvm script loading"
-add_to_shell_configs '[ -s "$ACTUAL_HOME/.nvm/bash_completion" ] && \. "$ACTUAL_HOME/.nvm/bash_completion"' "nvm bash completion"
+add_to_shell_configs 'export NVM_DIR="$HOME/.nvm"' "nvm initialization"
+add_to_shell_configs '[ -s "$HOME/.nvm/nvm.sh" ] && \. "$HOME/.nvm/nvm.sh"' "nvm script loading"
+add_to_shell_configs '[ -s "$HOME/.nvm/bash_completion" ] && \. "$HOME/.nvm/bash_completion"' "nvm bash completion"
 
 # Source nvm immediately for this session (needed to install Node.js in this script)
 export NVM_DIR="$ACTUAL_HOME/.nvm"
@@ -455,7 +457,7 @@ print_success "Latest Node.js installed and activated"
 print_info "Setting up automatic Node version switching..."
 if [ ! -d "$ACTUAL_HOME/.nvm/plugins" ]; then
     mkdir -p "$ACTUAL_HOME/.nvm/plugins"
-    chown -R "$ACTUAL_USER:$ACTUAL_USER" "$ACTUAL_HOME/.nvm/plugins"
+    chown -R "$ACTUAL_USER" "$ACTUAL_HOME/.nvm/plugins"
 fi
 
 if [ ! -f "$ACTUAL_HOME/.nvm/plugins/nvm-auto-use.sh" ]; then
@@ -489,7 +491,7 @@ else
 fi
 
 # Add auto-use script to shell configs
-add_to_shell_configs '[ -s \"$ACTUAL_HOME/.nvm/plugins/nvm-auto-use.sh\" ] && \\. \"$ACTUAL_HOME/.nvm/plugins/nvm-auto-use.sh\"' "nvm auto-use plugin"
+add_to_shell_configs '[ -s \"$HOME/.nvm/plugins/nvm-auto-use.sh\" ] && \\. \"$HOME/.nvm/plugins/nvm-auto-use.sh\"' "nvm auto-use plugin"
 print_success "Auto-use plugin configured in zshrc"
 
 ################################################################################

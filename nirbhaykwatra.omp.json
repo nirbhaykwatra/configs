@@ -24,11 +24,11 @@
           "style": "diamond",
           "foreground": "#48304B",
           "background": "#B47AEA",
-          "template": " {{ .Path }}  ",
+          "template": " {{ .Path }} ",
           "trailing_diamond": "\ue0b0",
           "options": {
             "cache_duration": "none",
-            "style": "folder",
+            "style": "agnoster",
             "home_icon": "\uf015",
             "folder_icon": "\uf07b"
           },
